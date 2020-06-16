@@ -1,4 +1,5 @@
 
+
 extern crate cairo;
 extern crate pango;
 
@@ -13,19 +14,24 @@ extern crate pugl_ui;
 pub mod label;
 pub mod button;
 pub mod dial;
+pub mod osci;
 
+pub use label::Label;
 pub use button::Button;
 pub use dial::Dial;
-pub use label::Label;
+pub use osci::Osci;
 
 mod style;
 mod led;
 
 #[cfg(test)]
 mod tests {
+    use std::sync::{Arc, RwLock};
+
     use crate::button;
     use crate::dial;
     use crate::label;
+    use crate::osci;
     use pugl_ui::ui;
     use pugl_ui::layout::StackDirection;
     use pugl_ui::widget;
@@ -70,6 +76,25 @@ mod tests {
         }
     }
 
+    struct OmegaDamp {
+        omega_damp: Arc<RwLock<(f64, f64)>>
+    }
+
+    impl osci::DrawingTask for OmegaDamp {
+        fn draw(&self, osci: &osci::Osci, cr: &cairo::Context) {
+            let (omega, damp) = *self.omega_damp.read().unwrap();
+            cr.set_source_rgb(0.0, 1.0, 0.0);
+            cr.set_line_width(1.0);
+            cr.move_to(osci.scale_x(0.0), osci.scale_y(0.0));
+            for i in 0..400 {
+                let x = i as f64 / 400.0;
+                let y = (x*omega).sin() * (-damp*x).exp();
+                cr.line_to(osci.scale_x(x), osci.scale_y(y));
+            }
+            cr.stroke();
+        }
+    }
+
     #[test]
     fn showcase() {
         let mut ui = Box::new(ui::UI::new(Box::new(RootWidget::default())));
@@ -83,16 +108,29 @@ mod tests {
         let button = ui.new_widget(button::Button::new("Button"));
         let toggle_button = ui.new_widget(button::Button::new_toggle_button("ToggleButton"));
 
-        let dial2 = ui.new_widget( cascade! {
-            dial::Dial::new(0., 1., 0.1);
-            ..set_plate_draw( &|d: &dial::Dial, cr: &cairo::Context| { dial::draw_angle_tics(d, cr, 11) });
-            ..set_hue(Some(0.1));
+        let omega_damp = Arc::new(RwLock::new((90.0, 6.0)));
+
+        let osci = ui.new_widget( cascade! {
+            osci::Osci::new();
+            ..set_min_height(180.0);
+            ..set_min_width(320.0);
+            ..linear_major_xticks(10);
+            ..linear_major_yticks(10);
+            ..submit_draw_task(Box::new(OmegaDamp { omega_damp: omega_damp.clone() }));
         });
 
         let dial1 = ui.new_widget( cascade! {
-            dial::Dial::new(0., 1., 0.1);
+            dial::Dial::new(0., 180., 20.);
+            ..set_plate_draw( &|d: &dial::Dial, cr: &cairo::Context| { dial::draw_angle_tics(d, cr, 11) });
+            ..set_hue(Some(0.1));
+            ..set_value(90.0);
+        });
+
+        let dial2 = ui.new_widget( cascade! {
+            dial::Dial::new(0., 10., 2.);
             ..set_plate_draw( &|d: &dial::Dial, cr: &cairo::Context| { dial::draw_angle_tics(d, cr, 5) });
             ..set_hue(Some(0.7));
+            ..set_value(6.0);
         });
 
         let dial_big = ui.new_widget( cascade! {
@@ -104,6 +142,8 @@ mod tests {
             dial::Dial::new(0., 1., 0.1);
             ..set_small();
         });
+
+        ui.pack_to_layout(osci, ui.root_layout(), StackDirection::Back);
 
         ui.pack_to_layout(button, ui.root_layout(), StackDirection::Back);
         ui.pack_to_layout(toggle_button, ui.root_layout(), StackDirection::Back);
@@ -169,11 +209,17 @@ mod tests {
             let w = ui.widget(dial1);
             if let Some(v) = w.changed_value() {
                 w.set_value(v);
+                let mut omega_damp = omega_damp.write().unwrap();
+                omega_damp.0 = v;
+                ui.widget(osci).ask_for_repaint();
             }
 
             let w = ui.widget(dial2);
             if let Some(v) = w.changed_value() {
                 w.set_value(v);
+                let mut omega_damp = omega_damp.write().unwrap();
+                omega_damp.1 = v;
+                ui.widget(osci).ask_for_repaint();
             }
 
             let w = ui.widget(toggle_button);
