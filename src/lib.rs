@@ -123,6 +123,7 @@ mod tests {
             dial::Dial::new(0., 180., 20.);
             ..set_plate_draw( &|d: &dial::Dial, cr: &cairo::Context| { dial::draw_angle_tics(d, cr, 11) });
             ..set_hue(Some(0.1));
+            ..set_default_value(90.0);
             ..set_value(90.0);
         });
 

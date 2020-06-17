@@ -12,6 +12,7 @@ pub struct Dial {
     radius: f64,
 
     value: f64,
+    default_value: Option<f64>,
     min_value: f64,
     max_value: f64,
     step: f64,
@@ -35,6 +36,7 @@ impl Dial {
             min_value, max_value, step,
 
             value: min_value,
+            default_value: None,
             changed_value: None,
 
             drag_origin: None,
@@ -51,9 +53,14 @@ impl Dial {
             stub: WidgetStub::default()
         })
     }
+
     pub fn set_value(&mut self, v: f64) {
         self.value = v;
         self.ask_for_repaint();
+    }
+
+    pub fn set_default_value(&mut self, v: f64) {
+        self.default_value = Some(v);
     }
 
     pub fn changed_value(&mut self) -> Option<f64> {
@@ -165,6 +172,14 @@ impl Widget for Dial {
                 match btn.num {
                     1 => {
                         self.drag_origin = Some(ev.pos_root());
+                        event_processed!()
+                    }
+                    3 => {
+                        if let Some(default) = self.default_value {
+                            if self.value != default {
+                                self.changed_value = Some(default);
+                            }
+                        }
                         event_processed!()
                     }
                     _ => event_not_processed!()
