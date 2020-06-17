@@ -145,7 +145,7 @@ impl Widget for Dial {
             let (w, h) = ((ent.width/pango::SCALE) as f64, (ent.height/pango::SCALE) as f64);
             let bl = (lyt.get_baseline()/pango::SCALE) as f64;
 
-            cr.translate(pos.x-w/2., pos.y-self.size().h/2. + h);
+            cr.translate(pos.x-w/2., pos.y-self.size().h/2. + h - 6.0);
             cr.set_source_rgb(0., 0., 0.);
             cr.rectangle(0., 0., w, h+(bl/2.));
             cr.fill();
@@ -222,7 +222,7 @@ impl Widget for Dial {
     }
 
     fn min_size(&self) -> Size {
-        Size { w: 4. * self.radius, h: 4. * self.radius + 12.0 }
+        Size { w: 4. * self.radius, h: 4. * self.radius + 3.0 }
     }
 }
 
@@ -238,7 +238,7 @@ pub fn draw_angle_tics(dial: &Dial, cr: &cairo::Context, num: u32) {
     let rad = dial.radius() * 1.3;
     let size = dial.min_size();
     cr.set_source_rgb(1.,1.,1.);
-    cr.translate(size.w/2., size.h/2.);
+    cr.translate(size.w/2., size.h/2. + 4.5);
     cr.rotate(PI/2.);
     for _ in 0..num {
         cr.rotate(PI / (num as f64 + 1.0) * 2.);
