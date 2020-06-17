@@ -130,10 +130,15 @@ impl Widget for Osci {
 
         cr.restore();
 
+        cr.move_to(x_min, y_min);
+        cr.line_to(x_min, y_max);
+        cr.line_to(x_max, y_max);
+        cr.line_to(x_max, y_min);
+        cr.clip();
         for task in &self.draw_tasks {
             task.draw(self, cr);
         }
-
+        cr.reset_clip();
     }
 
     fn min_size(&self) -> pugl_sys::Size {
