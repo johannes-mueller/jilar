@@ -120,27 +120,27 @@ mod tests {
         });
 
         let dial1 = ui.new_widget( cascade! {
-            dial::Dial::new(0., 180., 20.);
-            ..set_plate_draw( &|d: &dial::Dial, cr: &cairo::Context| { dial::draw_angle_tics(d, cr, 11) });
+            dial::Dial::<dial::LinearScale>::new(0., 180., 10);
+            ..set_plate_draw( &|d: &dial::Dial<dial::LinearScale>, cr: &cairo::Context| { dial::draw_angle_tics(d, cr, 11) });
             ..set_hue(Some(0.1));
             ..set_default_value(90.0);
             ..set_value(90.0);
         });
 
         let dial2 = ui.new_widget( cascade! {
-            dial::Dial::new(0., 10., 2.);
-            ..set_plate_draw( &|d: &dial::Dial, cr: &cairo::Context| { dial::draw_angle_tics(d, cr, 5) });
+            dial::Dial::<dial::LogScale>::new(0.1, 1000., 10);
+            ..set_plate_draw( &|d: &dial::Dial<dial::LogScale>, cr: &cairo::Context| { dial::draw_angle_tics(d, cr, 5) });
             ..set_hue(Some(0.7));
             ..set_value(6.0);
         });
 
         let dial_big = ui.new_widget( cascade! {
-            dial::Dial::new(0., 1., 0.1);
+            dial::Dial::<dial::LinearScale>::new(0., 1., 10);
             ..set_large();
         });
 
         let dial_small = ui.new_widget( cascade! {
-            dial::Dial::new(0., 1., 0.1);
+            dial::Dial::<dial::LinearScale>::new(0., 1., 10);
             ..set_small();
         });
 
