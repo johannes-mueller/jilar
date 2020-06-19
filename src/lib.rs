@@ -81,15 +81,15 @@ mod tests {
     }
 
     impl osci::DrawingTask for OmegaDamp {
-        fn draw(&self, osci: &osci::Osci, cr: &cairo::Context) {
+        fn draw(&mut self, coord_system: osci::OsciCoordSystem, cr: &cairo::Context) {
             let (omega, damp) = *self.omega_damp.read().unwrap();
             cr.set_source_rgb(0.0, 1.0, 0.0);
             cr.set_line_width(1.0);
-            cr.move_to(osci.scale_x(0.0), osci.scale_y(0.0));
+            cr.move_to(coord_system.scale_x(0.0), coord_system.scale_y(0.0));
             for i in 0..400 {
                 let x = i as f64 / 400.0;
                 let y = (x*omega).sin() * (-damp*x).exp();
-                cr.line_to(osci.scale_x(x), osci.scale_y(y));
+                cr.line_to(coord_system.scale_x(x), coord_system.scale_y(y));
             }
             cr.stroke();
         }
