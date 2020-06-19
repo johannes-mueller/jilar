@@ -52,7 +52,7 @@ mod tests {
     impl widget::Widget for RootWidget {
         widget_stub!();
 
-        fn exposed (&self, _expose: &pugl_sys::ExposeArea, cr: &cairo::Context) {
+        fn exposed (&mut self, _expose: &pugl_sys::ExposeArea, cr: &cairo::Context) {
             cr.set_source_rgb (0.2, 0.2, 0.2);
             let size = self.size();
             cr.rectangle (0., 0., size.w, size.h);

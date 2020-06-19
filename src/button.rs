@@ -81,7 +81,7 @@ impl Button {
 impl Widget for Button {
     widget_stub!();
 
-    fn exposed (&self, _expose: &ExposeArea, cr: &cairo::Context) {
+    fn exposed (&mut self, _expose: &ExposeArea, cr: &cairo::Context) {
 
         let size = self.size();
         let pos = self.pos();

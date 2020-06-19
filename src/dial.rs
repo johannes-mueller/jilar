@@ -108,7 +108,7 @@ impl Dial {
 impl Widget for Dial {
     widget_stub!();
 
-    fn exposed (&self, _exposed: &ExposeArea, cr: &cairo::Context) {
+    fn exposed (&mut self, _exposed: &ExposeArea, cr: &cairo::Context) {
 
         let pos = self.pos() + Coord { x: 2.*self.radius, y: 2.*self.radius };
         cr.save();

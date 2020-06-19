@@ -93,7 +93,7 @@ fn make_linear_ticks(min: f64, max: f64, number: u32) -> Vec<f64> {
 impl Widget for Osci {
     widget_stub!();
 
-    fn exposed(&self, _expose: &pugl_sys::ExposeArea, cr: &cairo::Context) {
+    fn exposed(&mut self, _expose: &pugl_sys::ExposeArea, cr: &cairo::Context) {
         let size = self.size();
         let pos = self.pos();
 

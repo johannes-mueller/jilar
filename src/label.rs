@@ -35,7 +35,7 @@ impl Label {
 impl Widget for Label {
     widget_stub!();
 
-    fn exposed(&self, _exposed: &ExposeArea, cr: &cairo::Context) {
+    fn exposed(&mut self, _exposed: &ExposeArea, cr: &cairo::Context) {
 
         let pos = self.pos();
 
