@@ -15,11 +15,13 @@ pub mod label;
 pub mod button;
 pub mod dial;
 pub mod osci;
+pub mod meter;
 
 pub use label::Label;
 pub use button::Button;
 pub use dial::Dial;
 pub use osci::Osci;
+pub use meter::Meter;
 
 mod style;
 mod led;
@@ -32,6 +34,8 @@ mod tests {
     use crate::dial;
     use crate::label;
     use crate::osci;
+    use crate::meter;
+
     use pugl_ui::ui;
     use pugl_ui::layout::StackDirection;
     use pugl_ui::widget;
@@ -104,6 +108,7 @@ mod tests {
         let dial_layout = ui.new_layouter::<layout::HorizontalLayouter>();
         let dial_v_lt1 = ui.new_layouter::<layout::VerticalLayouter>();
         let dial_v_lt2 = ui.new_layouter::<layout::VerticalLayouter>();
+        let dial_v_lt3 = ui.new_layouter::<layout::VerticalLayouter>();
 
         let button = ui.new_widget(button::Button::new("Button"));
         let toggle_button = ui.new_widget(button::Button::new_toggle_button("ToggleButton"));
@@ -118,6 +123,8 @@ mod tests {
             ..linear_major_yticks(10);
             ..submit_draw_task(Box::new(OmegaDamp { omega_damp: omega_damp.clone() }));
         });
+
+        let meter = ui.new_widget(meter::Meter::new());
 
         let dial1 = ui.new_widget( cascade! {
             dial::Dial::<dial::LinearScale>::new(0., 180., 10);
@@ -134,6 +141,13 @@ mod tests {
             ..set_value(6.0);
         });
 
+        let dial3 = ui.new_widget( cascade! {
+            dial::Dial::<dial::LinearScale>::new(-72.0, 24.0, 32);
+            ..set_plate_draw( &|d: &dial::Dial<dial::LinearScale>, cr: &cairo::Context| { dial::draw_angle_tics(d, cr, 5) });
+            ..set_hue(Some(0.4));
+            ..set_value(-72.0);
+        });
+
         let dial_big = ui.new_widget( cascade! {
             dial::Dial::<dial::LinearScale>::new(0., 1., 10);
             ..set_large();
@@ -144,7 +158,11 @@ mod tests {
             ..set_small();
         });
 
-        ui.pack_to_layout(osci, ui.root_layout(), StackDirection::Back);
+        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        ui.pack_to_layout(hl.widget(), ui.root_layout(), StackDirection::Back);
+        ui.pack_to_layout(osci, hl, StackDirection::Back);
+        ui.add_spacer(hl, StackDirection::Back);
+        ui.pack_to_layout(meter, hl, StackDirection::Back);
 
         ui.pack_to_layout(button, ui.root_layout(), StackDirection::Back);
         ui.pack_to_layout(toggle_button, ui.root_layout(), StackDirection::Back);
@@ -164,6 +182,19 @@ mod tests {
         ui.pack_to_layout(lb, hl, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
 
+        ui.pack_to_layout(dial_v_lt3.widget(), dial_layout, StackDirection::Back);
+        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        ui.pack_to_layout(hl.widget(), dial_v_lt3, StackDirection::Back);
+        ui.add_spacer(hl, StackDirection::Back);
+        ui.pack_to_layout(dial3, hl, StackDirection::Back);
+        ui.add_spacer(hl, StackDirection::Back);
+
+        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        ui.pack_to_layout(hl.widget(), dial_v_lt3, StackDirection::Back);
+        ui.add_spacer(hl, StackDirection::Back);
+        let lb = ui.new_widget(label::Label::new("meza"));
+        ui.pack_to_layout(lb, hl, StackDirection::Back);
+        ui.add_spacer(hl, StackDirection::Back);
 
         ui.pack_to_layout(dial_v_lt2.widget(), dial_layout, StackDirection::Back);
         let hl = ui.new_layouter::<layout::HorizontalLayouter>();
@@ -221,6 +252,12 @@ mod tests {
                 let mut omega_damp = omega_damp.write().unwrap();
                 omega_damp.1 = v;
                 ui.widget(osci).ask_for_repaint();
+            }
+
+            let w = ui.widget(dial3);
+            if let Some(v) = w.changed_value() {
+                w.set_value(v);
+                ui.widget(meter).set_level(v as f32);
             }
 
             let w = ui.widget(toggle_button);
