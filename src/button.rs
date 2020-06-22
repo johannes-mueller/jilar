@@ -97,10 +97,12 @@ impl Widget for Button {
         cr.save();
         cr.translate(pos.x, pos.y);
 
+        let null_pos = Coord { x:0.0, y: 0.0 };
+
         if self.active {
-            cr.set_source(&utils::active_gradient(size, (r, g, b)));
+            cr.set_source(&utils::active_gradient(null_pos, size, (r, g, b)));
         } else {
-            cr.set_source(&utils::inactive_gradient(size, (r, g, b)));
+            cr.set_source(&utils::inactive_gradient(null_pos, size, (r, g, b)));
         }
 
         utils::rounded_rectangle(cr, Coord::default(), size, PADDING);

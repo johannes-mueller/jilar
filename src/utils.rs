@@ -22,9 +22,9 @@ pub fn rounded_rectangle(cr: &cairo::Context, pos: Coord, size: Size, r: f64) {
     cr.close_path();
 }
 
-pub fn active_gradient(size: Size, rgb: (f64, f64, f64)) -> cairo::LinearGradient {
+pub fn active_gradient(pos: Coord, size: Size, rgb: (f64, f64, f64)) -> cairo::LinearGradient {
     let (r, g, b) = rgb;
-    let grad = cairo::LinearGradient::new(0.0, 0.0, 0.0, size.w);
+    let grad = cairo::LinearGradient::new(pos.x, pos.y, 0.0, size.h);
 
     grad.add_color_stop_rgb(0.5, r*1.2, g*1.2, b*1.2);
     grad.add_color_stop_rgb(0.0, r/1.2, g/1.2, b/1.2);
@@ -33,9 +33,9 @@ pub fn active_gradient(size: Size, rgb: (f64, f64, f64)) -> cairo::LinearGradien
 }
 
 
-pub fn inactive_gradient(size: Size, rgb: (f64, f64, f64)) -> cairo::LinearGradient {
+pub fn inactive_gradient(pos: Coord, size: Size, rgb: (f64, f64, f64)) -> cairo::LinearGradient {
     let (r, g, b) = rgb;
-    let grad = cairo::LinearGradient::new(0.0, 0.0, 0.0, size.w);
+    let grad = cairo::LinearGradient::new(pos.x, pos.y, 0.0, size.h);
 
     grad.add_color_stop_rgb(0.0, r*1.2, g*1.2, b*1.2);
     grad.add_color_stop_rgb(0.5, r/1.2, g/1.2, b/1.2);
