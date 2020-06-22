@@ -101,7 +101,7 @@ mod tests {
 
     #[test]
     fn showcase() {
-        let mut ui = Box::new(ui::UI::new(Box::new(RootWidget::default())));
+        let mut ui = Box::new(ui::UI::new_scaled(Box::new(RootWidget::default()), 1.25));
 
         ui.layouter_handle(ui.root_layout()).set_padding(50.0);
 
@@ -111,7 +111,7 @@ mod tests {
         let dial_v_lt3 = ui.new_layouter::<layout::VerticalLayouter>();
 
         let button = ui.new_widget(button::Button::new("Button"));
-        let toggle_button = ui.new_widget(button::Button::new_toggle_button("ToggleButton"));
+        let toggle_button = ui.new_widget(button::Button::new_toggle_button("ToggleButton", 0.66));
 
         let omega_damp = Arc::new(RwLock::new((90.0, 6.0)));
 

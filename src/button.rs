@@ -22,13 +22,15 @@ pub struct Button {
     active: bool,
 
     toggle_state: Option<bool>,
+    led_hue: f64,
 
     changed_toggle_state: Option<bool>,
 }
 
 impl Button {
-    pub fn new_toggle_button(text: &str) -> Box<Button> {
+    pub fn new_toggle_button(text: &str, led_hue: f64) -> Box<Button> {
         let mut btn = Self::new(text);
+        btn.led_hue = led_hue;
         btn.min_size.w += style::LED_DIAMETER * 2.0;
         btn.toggle_state = Some(false);
         btn
@@ -52,6 +54,7 @@ impl Button {
             clicked: false,
             active: false,
             toggle_state: None,
+            led_hue: 0.0,
             changed_toggle_state: None
         })
     }
@@ -111,7 +114,7 @@ impl Widget for Button {
 
         match self.toggle_state {
             Some(t) => {
-                let mut led = led::LED::new(1.0);
+                let mut led = led::LED::new(self.led_hue);
                 if t {
                     led.set_on(true);
                 }

@@ -153,8 +153,17 @@ impl<S: Scale> Widget for Dial<S> {
 
         cr.set_source(&utils::inactive_gradient(Coord {x: 0.0, y: -self.radius},
                                                 Size { w: 2.*self.radius, h: self.radius },
-                                                utils::widget_rgb(self.is_hovered(), self.hue)));
+                                                utils::widget_rgb(self.is_hovered(), None)));
         cr.arc(0., 0., self.radius * 0.8, 0.0, 2.*PI);
+        cr.fill();
+
+        let (r, g, b) = utils::widget_rgb(self.is_hovered(), self.hue);
+
+        cr.set_source(&utils::active_gradient(Coord {x: 0.0, y: -0.4*self.radius},
+                                             Size { w: 0.2*self.radius, h: 0.8*self.radius },
+                                             (r, g, b)
+        ));
+        cr.arc(0., 0., self.radius * 0.4, 0.0, 2.*PI);
         cr.fill();
 
         cr.set_source_rgb(0., 0., 0.);
