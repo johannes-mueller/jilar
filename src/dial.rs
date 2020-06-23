@@ -291,6 +291,7 @@ pub fn draw_angle_tics<S: Scale>(dial: &Dial<S>, cr: &cairo::Context, num: u32) 
     let rad = dial.radius() * 1.3;
     let size = dial.min_size();
     cr.set_source_rgb(1.,1.,1.);
+    cr.set_line_width(1.0);
     cr.translate(size.w/2., size.h/2. + 4.5);
     cr.rotate(PI/2.);
     for _ in 0..num {
