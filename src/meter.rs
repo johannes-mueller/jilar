@@ -5,34 +5,39 @@ use pugl_ui::widget::*;
 
 const MIN_LEVEL: f32 = -40.0;
 const MAX_LEVEL: f32 = 12.0;
-
 const METER_STEP: f32 = 1.0;
-
 const MIN_WIDTH: f64 = 12.0;
+
+const LEVEL_RETAIN_TIME: f64 = 3.0;
+
 
 pub struct Meter {
     stub: WidgetStub,
     current_level: f32,
-    retained_level: Option<f32>,
+
+    retained_level: Option<(usize, f32)>,
+    num_retains: usize,
 }
 
 impl Meter {
-    pub fn new() -> Box<Meter> {
+    pub fn new(period: f64) -> Box<Meter> {
         Box::new(Meter {
             stub: WidgetStub::default(),
             current_level: -160.0,
             retained_level: None,
+            num_retains: (LEVEL_RETAIN_TIME/period).round() as usize
         })
     }
 
     pub fn set_level(&mut self, level: f32) {
         let new_level = level.max(MIN_LEVEL).min(MAX_LEVEL);
-        if self.retained_level.map_or(true, |l| new_level > l) {
-            self.retained_level = Some(new_level);
-            self.request_reminder(3.0);
+        if self.retained_level.map_or(true, |(_, l)| new_level > l) {
+            self.retained_level = Some((self.num_retains, new_level));
         }
-        self.current_level = new_level;
-        self.ask_for_repaint();
+        if new_level != self.current_level || self.retained_level.is_some() {
+            self.current_level = new_level;
+            self.ask_for_repaint();
+        }
     }
 
     pub fn level(&self) -> f32 {
@@ -133,20 +138,29 @@ impl Widget for Meter {
             cr.fill();
         }
 
-        if let Some(level) = self.retained_level {
-            let rgb = match level {
-                l if l < -18.0 => (0., 0.5, 0.),
-                l if l < -9.0 => (0., 1., 0.),
-                l if l < -3.0 => (1., 1., 0.),
-                l if l < 0.0 => (1., 0.5, 0.),
-                _ => (1.0, 0.0, 0.0)
-            };
+        self.retained_level = match self.retained_level {
+            Some((num, level)) => {
+                let rgb = match level {
+                    l if l < -18.0 => (0., 0.5, 0.),
+                    l if l < -9.0 => (0., 1., 0.),
+                    l if l < -3.0 => (1., 1., 0.),
+                    l if l < 0.0 => (1., 0.5, 0.),
+                    _ => (1.0, 0.0, 0.0)
+                };
 
-            cr.set_source(&make_grad(left, top, right, rgb));
-            let y = scale_dB(height, level);
-            cr.rectangle(left, bottom - y, width, y - scale_dB(height, level - METER_STEP));
-            cr.fill();
-        }
+                cr.set_source(&make_grad(left, top, right, rgb));
+                let y = scale_dB(height, level);
+                cr.rectangle(left, bottom - y, width, y - scale_dB(height, level - METER_STEP));
+                cr.fill();
+
+                if num > 1 {
+                    Some((num-1, level))
+                } else {
+                    None
+                }
+            }
+            None => None
+        };
 
         cr.set_source_rgb(0., 0., 0.);
         cr.set_line_width(1.0);
@@ -166,12 +180,6 @@ impl Widget for Meter {
 
     fn height_expandable(&self) -> bool {
         true
-    }
-
-    fn reminder_handler(&mut self) -> bool {
-        self.retained_level = None;
-        self.ask_for_repaint();
-        false
     }
 }
 

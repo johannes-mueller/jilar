@@ -124,7 +124,7 @@ mod tests {
             ..submit_draw_task(Box::new(OmegaDamp { omega_damp: omega_damp.clone() }));
         });
 
-        let meter = ui.new_widget(meter::Meter::new());
+        let meter = ui.new_widget(meter::Meter::new(1.0));
 
         let dial1 = ui.new_widget( cascade! {
             dial::Dial::<dial::LinearScale>::new(0., 180., 10);
