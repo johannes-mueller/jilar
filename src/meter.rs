@@ -168,9 +168,10 @@ impl Widget for Meter {
         true
     }
 
-    fn reminder_handler(&mut self) {
+    fn reminder_handler(&mut self) -> bool {
         self.retained_level = None;
         self.ask_for_repaint();
+        false
     }
 }
 
