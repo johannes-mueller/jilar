@@ -89,11 +89,15 @@ impl Widget for Button {
         let size = self.size();
         let pos = self.pos();
 
-        let (r, g, b) =  utils::widget_rgb(self.is_hovered(), None);
+        let (r, g, b) =  if self.is_hovered() {
+	    utils::hsv_to_rgb(0.0, 0.0, style::BRIGHTNESS_BUTTON_HOVER)
+	} else {
+	    utils::hsv_to_rgb(0.0, 0.0, style::BRIGHTNESS_BUTTON_NORMAL)
+	};
         cr.set_source_rgb(r, g, b);
         utils::rounded_rectangle(cr, pos, size, PADDING);
         //cr.fill_preserve();
-        cr.set_line_width(0.75);
+        cr.set_line_width(2.0);
         cr.set_source_rgb(0., 0., 0.);
         cr.stroke();
 
