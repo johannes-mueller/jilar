@@ -3,7 +3,6 @@ use pugl_ui::widget::*;
 use pugl_sys::*;
 
 use crate::utils;
-use crate::style;
 
 pub struct Label {
     stub: WidgetStub,

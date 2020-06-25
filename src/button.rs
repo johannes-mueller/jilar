@@ -1,9 +1,6 @@
 
-use pango;
-
 use pugl_sys::*;
 use pugl_ui::*;
-use pugl_ui::ui::*;
 use pugl_ui::widget::*;
 
 use crate::led;
@@ -116,15 +113,12 @@ impl Widget for Button {
         cr.fill();
         cr.restore();
 
-        match self.toggle_state {
-            Some(t) => {
-                let mut led = led::LED::new(self.led_hue);
-                if t {
-                    led.set_on(true);
-                }
-                led.render(cr, Coord { x: pos.x + PADDING + style::LED_DIAMETER/2., y: pos.y + size.h/2. });
+        if let Some(ts) = self.toggle_state {
+            let mut led = led::LED::new(self.led_hue);
+            if ts {
+                led.set_on(true);
             }
-            _ => {}
+            led.render(cr, Coord { x: pos.x + PADDING + style::LED_DIAMETER/2., y: pos.y + size.h/2. });
         }
 
         cr.save();
@@ -160,9 +154,7 @@ impl Widget for Button {
             EventType::MouseButtonRelease(_btn) => {
                 self.clicked = true;
                 self.active = false;
-                self.changed_toggle_state = self.toggle_state.and_then(|ts| {
-                    Some(!ts)
-                });
+                self.changed_toggle_state = self.toggle_state.map(|ts| !ts);
 
                 event_processed!()
             },

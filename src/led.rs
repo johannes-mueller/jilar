@@ -1,7 +1,5 @@
 use std::f64::consts::PI;
 
-use cairo;
-
 use crate::style;
 use crate::utils;
 
@@ -40,9 +38,10 @@ impl LED {
 
         cr.arc(0.0, 0.0, self.diameter/2., 0.0, 2.*PI);
 
-        let v = match self.on {
-            true => 1.0,
-            false => 0.5,
+        let v = if self.on {
+            1.0
+	} else {
+            0.5
         };
         let (r, g, b) = utils::hsv_to_rgb(self.hue, 1., v);
 

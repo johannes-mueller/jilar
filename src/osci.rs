@@ -1,5 +1,4 @@
 
-use pugl_sys;
 use pugl_ui::widget::*;
 
 pub trait DrawingTask : Sync + Send {
@@ -136,7 +135,7 @@ impl Widget for Osci {
         cr.line_to(x_max, y_min);
         cr.clip();
 
-        for mut task in self.draw_tasks.iter_mut() {
+        for task in self.draw_tasks.iter_mut() {
             task.draw(self.coord_system, cr);
         }
         cr.reset_clip();

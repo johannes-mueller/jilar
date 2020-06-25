@@ -224,7 +224,7 @@ mod tests {
         let dial_big_layout = ui.widget(dial_big).layout();
         ui.root_widget().draw_rects(dial_medium_layout, dial_big_layout);
 
-        let view = pugl_sys::PuglView::make_view(ui, std::ptr::null_mut());
+        let mut view = pugl_sys::PuglView::make_view(ui, std::ptr::null_mut());
 
         let ui = view.handle();
 

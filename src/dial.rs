@@ -1,6 +1,5 @@
 use std::f64::consts::PI;
 
-use pugl_ui::ui::*;
 use pugl_ui::widget::*;
 use pugl_sys::*;
 
@@ -134,7 +133,7 @@ impl<S: Scale> Dial<S> {
             v if v < self.min_value => self.min_value,
             _ => new_value
         };
-        if new_value != self.value {
+        if (new_value - self.value).abs() > f64::EPSILON * self.value {
             self.changed_value = Some(new_value)
         }
     }
@@ -226,7 +225,7 @@ impl<S: Scale> Widget for Dial<S> {
                     }
                     3 => {
                         if let Some(default) = self.default_value {
-                            if self.value != default {
+                            if (self.value - default).abs() > f64::EPSILON * self.value {
                                 self.changed_value = Some(default);
                             }
                         }

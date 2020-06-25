@@ -1,16 +1,16 @@
 
 use std::f64::consts::PI;
 
-use cairo;
 use pugl_sys::{Coord, Size};
 
 use crate::style;
 
 pub type RGB = (f64, f64, f64);
 
-pub fn rounded_rectangle(cr: &cairo::Context, pos: Coord, size: Size, r: f64) {
+pub fn rounded_rectangle(cr: &cairo::Context, pos: Coord, size: Size, radius: f64) {
     const DEG: f64 = PI / 180.0;
 
+    let r = radius;
     let (x, y) = (pos.x, pos.y);
     let (w, h) = (size.w, size.h);
 

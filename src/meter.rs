@@ -1,6 +1,3 @@
-use cairo;
-
-use pugl_sys;
 use pugl_ui::widget::*;
 
 const MIN_LEVEL: f32 = -40.0;
@@ -34,7 +31,8 @@ impl Meter {
         if self.retained_level.map_or(true, |(_, l)| new_level > l) {
             self.retained_level = Some((self.num_retains, new_level));
         }
-        if new_level != self.current_level || self.retained_level.is_some() {
+        if (new_level - self.current_level).abs() > f32::EPSILON * self.current_level ||
+	    self.retained_level.is_some() {
             self.current_level = new_level;
             self.ask_for_repaint();
         }
