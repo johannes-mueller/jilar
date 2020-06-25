@@ -10,5 +10,5 @@ pango = "0.8.0"
 pangocairo = "0.9.0"
 cascade = "0.1.4"
 
-pugl-ui = { git = "https://github.com/johannes-mueller/pugl-ui" }
-pugl-sys = { git = "https://github.com/johannes-mueller/pugl-sys" }
+pugl-ui = "0.1.0"
+pugl-sys = "0.1.0"
