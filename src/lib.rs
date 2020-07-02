@@ -101,9 +101,11 @@ mod tests {
 
     #[test]
     fn showcase() {
-        let mut ui = Box::new(ui::UI::new_scaled(Box::new(RootWidget::default()), 1.25));
+        let rw = Box::new(RootWidget::default());
+        let mut view = PuglView::new(std::ptr::null_mut(), |pv| ui::UI::new_scaled(pv, rw, 1.25));
+        let ui = view.handle();
 
-        ui.layouter_handle(ui.root_layout()).set_padding(50.0);
+        ui.layouter(ui.root_layout()).set_padding(50.0);
 
         let dial_layout = ui.new_layouter::<layout::HorizontalLayouter>();
         let dial_v_lt1 = ui.new_layouter::<layout::VerticalLayouter>();
@@ -224,16 +226,11 @@ mod tests {
         let dial_big_layout = ui.widget(dial_big).layout();
         ui.root_widget().draw_rects(dial_medium_layout, dial_big_layout);
 
-        let mut view = pugl_sys::PuglView::make_view(ui, std::ptr::null_mut());
-
-        let ui = view.handle();
-
         ui.fit_window_size();
         ui.fit_window_min_size();
         ui.set_window_title("jilar widget showcase");
         //ui.make_resizable();
         ui.show_window();
-
 
         while !ui.close_request_issued() {
             ui.next_event(-1.0);
