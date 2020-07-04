@@ -37,10 +37,10 @@ mod tests {
     use crate::meter;
 
     use pugl_ui::ui;
-    use pugl_ui::layout::StackDirection;
     use pugl_ui::widget;
-    use pugl_ui::layout;
     use pugl_ui::widget::Widget;
+    use pugl_ui::layout::stacklayout;
+    use pugl_ui::layout::stacklayout::StackDirection;
     use pugl_sys::*;
 
     use cairo;
@@ -107,10 +107,10 @@ mod tests {
 
         ui.layouter(ui.root_layout()).set_padding(50.0);
 
-        let dial_layout = ui.new_layouter::<layout::HorizontalLayouter>();
-        let dial_v_lt1 = ui.new_layouter::<layout::VerticalLayouter>();
-        let dial_v_lt2 = ui.new_layouter::<layout::VerticalLayouter>();
-        let dial_v_lt3 = ui.new_layouter::<layout::VerticalLayouter>();
+        let dial_layout = ui.new_layouter::<stacklayout::HorizontalLayouter>();
+        let dial_v_lt1 = ui.new_layouter::<stacklayout::VerticalLayouter>();
+        let dial_v_lt2 = ui.new_layouter::<stacklayout::VerticalLayouter>();
+        let dial_v_lt3 = ui.new_layouter::<stacklayout::VerticalLayouter>();
 
         let button = ui.new_widget(button::Button::new("Button"));
         let toggle_button = ui.new_widget(button::Button::new_toggle_button("ToggleButton", 0.66));
@@ -160,7 +160,7 @@ mod tests {
             ..set_small();
         });
 
-        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        let hl = ui.new_layouter::<stacklayout::HorizontalLayouter>();
         ui.pack_to_layout(hl.widget(), ui.root_layout(), StackDirection::Back);
         ui.pack_to_layout(osci, hl, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
@@ -171,13 +171,13 @@ mod tests {
         ui.pack_to_layout(dial_layout.widget(), ui.root_layout(), StackDirection::Back);
 
         ui.pack_to_layout(dial_v_lt1.widget(), dial_layout, StackDirection::Back);
-        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        let hl = ui.new_layouter::<stacklayout::HorizontalLayouter>();
         ui.pack_to_layout(hl.widget(), dial_v_lt1, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
         ui.pack_to_layout(dial1, hl, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
 
-        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        let hl = ui.new_layouter::<stacklayout::HorizontalLayouter>();
         ui.pack_to_layout(hl.widget(), dial_v_lt1, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
         let lb = ui.new_widget(label::Label::new("maldekstra"));
@@ -185,13 +185,13 @@ mod tests {
         ui.add_spacer(hl, StackDirection::Back);
 
         ui.pack_to_layout(dial_v_lt3.widget(), dial_layout, StackDirection::Back);
-        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        let hl = ui.new_layouter::<stacklayout::HorizontalLayouter>();
         ui.pack_to_layout(hl.widget(), dial_v_lt3, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
         ui.pack_to_layout(dial3, hl, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
 
-        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        let hl = ui.new_layouter::<stacklayout::HorizontalLayouter>();
         ui.pack_to_layout(hl.widget(), dial_v_lt3, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
         let lb = ui.new_widget(label::Label::new("meza"));
@@ -199,20 +199,20 @@ mod tests {
         ui.add_spacer(hl, StackDirection::Back);
 
         ui.pack_to_layout(dial_v_lt2.widget(), dial_layout, StackDirection::Back);
-        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        let hl = ui.new_layouter::<stacklayout::HorizontalLayouter>();
         ui.pack_to_layout(hl.widget(), dial_v_lt2, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
         ui.pack_to_layout(dial2, hl, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
 
-        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        let hl = ui.new_layouter::<stacklayout::HorizontalLayouter>();
         ui.pack_to_layout(hl.widget(), dial_v_lt2, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
         let lb = ui.new_widget(label::Label::new("dekstra"));
         ui.pack_to_layout(lb, hl, StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
 
-        let hl = ui.new_layouter::<layout::HorizontalLayouter>();
+        let hl = ui.new_layouter::<stacklayout::HorizontalLayouter>();
         ui.pack_to_layout(hl.widget(), ui.root_layout(), StackDirection::Back);
         ui.add_spacer(hl, StackDirection::Back);
         ui.pack_to_layout(dial_small, hl, StackDirection::Back);
