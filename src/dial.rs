@@ -278,8 +278,8 @@ impl<S: Scale> Widget for Dial<S> {
     }
 }
 
-fn refine_step_by_modifiers(modifiers: u32) -> f64 {
-    if (Modifiers::from_bits_truncate(modifiers) & Modifiers::CTRL).is_empty() {
+fn refine_step_by_modifiers(modifiers: Modifiers) -> f64 {
+    if modifiers.contains(Modifiers::CTRL) {
         1.0
     } else {
         1. / 10.
