@@ -2,6 +2,7 @@
 extern crate cairo;
 extern crate pango;
 
+#[cfg(not(feature="testing"))]
 #[macro_use]
 extern crate cascade;
 
@@ -25,54 +26,33 @@ pub use meter::Meter;
 mod style;
 mod led;
 
-#[cfg(test)]
+#[cfg(feature="testing")]
 mod tests {
-    use std::sync::{Arc, RwLock};
 
-    use crate::button;
-    use crate::dial;
-    use crate::label;
-    use crate::osci;
-    use crate::meter;
-
-    use pugl_ui::ui;
-    use pugl_ui::widget;
-    use pugl_ui::widget::Widget;
-    use pugl_ui::layout::stacklayout;
-    use pugl_ui::layout::stacklayout::StackDirection;
-    use pugl_sys::*;
-
-    use cairo;
-
-    #[cfg(feature="testing")]
     #[derive(Default)]
     struct SVGStream {
         contents: String
     }
 
-    #[cfg(feature="testing")]
     impl std::io::Write for SVGStream {
         fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
             self.contents.push_str(&String::from_utf8_lossy(buf).to_owned());
-            Ok((buf.len()))
+            Ok(buf.len())
         }
+
         fn flush(&mut self) -> std::io::Result<()> {
             Ok(())
         }
     }
 
-    #[cfg(feature="testing")]
     pub struct SVGCairoTester {
         context: cairo::Context,
         surface: cairo::SvgSurface
     }
 
-    #[cfg(feature="testing")]
     impl SVGCairoTester {
         pub fn new(width: f64, height: f64) -> Self {
-            let surface = unsafe {
-                cairo::SvgSurface::for_stream(width, height, SVGStream::default()).unwrap()
-            };
+            let surface = cairo::SvgSurface::for_stream(width, height, SVGStream::default()).unwrap();
             let context = cairo::Context::new(&surface);
             Self {
                 context,
@@ -92,7 +72,26 @@ mod tests {
             &self.context
         }
     }
+}
 
+#[cfg(all(test, not(feature="testing")))]
+mod tests {
+    use std::sync::{Arc, RwLock};
+
+    use crate::button;
+    use crate::dial;
+    use crate::label;
+    use crate::osci;
+    use crate::meter;
+
+    use pugl_ui::ui;
+    use pugl_ui::widget;
+    use pugl_ui::widget::Widget;
+    use pugl_ui::layout::stacklayout;
+    use pugl_ui::layout::stacklayout::StackDirection;
+    use pugl_sys::*;
+
+    use cairo;
 
     #[derive(Default)]
     struct RootWidget {
@@ -148,7 +147,6 @@ mod tests {
         }
     }
 
-    #[cfg(not(feature="testing"))]
     #[test]
     fn showcase() {
         let rw = Box::new(RootWidget::default());

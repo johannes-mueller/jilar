@@ -59,9 +59,6 @@ mod tests {
     use super::*;
 
     use crate::tests::SVGCairoTester;
-    use pugl_ui::ui::*;
-    use pugl_ui::layout::stacklayout::*;
-    use pugl_ui::widget::*;
 
     #[test]
     fn led_create() {
@@ -87,5 +84,45 @@ mod tests {
         led.render(tester.context(), Coord { x: 8., y: 8. });
 
         assert!(tester.contents().contains("<path style=\"fill-rule:nonzero;fill:rgb(100%,0%,0%);"));
+    }
+
+    #[test]
+    fn led_draw_blue_off() {
+        let mut led = LED::new(2./3.);
+        led.set_on(false);
+
+        let tester = SVGCairoTester::new(16., 16.);
+        led.render(tester.context(), Coord { x: 8., y: 8. });
+
+        assert!(tester.contents().contains("<path style=\"fill-rule:nonzero;fill:rgb(0%,0%,50%);"));
+    }
+
+    #[test]
+    fn led_draw_green_on() {
+        let mut led = LED::new(1./3.);
+        led.set_on(true);
+
+        let tester = SVGCairoTester::new(16., 16.);
+        led.render(tester.context(), Coord { x: 8., y: 8. });
+
+        assert!(tester.contents().contains("<path style=\"fill-rule:nonzero;fill:rgb(0%,100%,0%);"));
+    }
+
+    #[test]
+    fn led_red_to_blue() {
+        let mut led = LED::new(0.0);
+
+        let tester = SVGCairoTester::new(16., 16.);
+        led.render(tester.context(), Coord { x: 8., y: 8. });
+
+        assert!(tester.contents().contains("<path style=\"fill-rule:nonzero;fill:rgb(50%,0%,0%);"));
+
+        led.set_hue(2./3.);
+
+        let tester = SVGCairoTester::new(16., 16.);
+        led.render(tester.context(), Coord { x: 8., y: 8. });
+
+        assert!(tester.contents().contains("<path style=\"fill-rule:nonzero;fill:rgb(0%,0%,50%);"));
+
     }
 }

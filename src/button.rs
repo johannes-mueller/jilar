@@ -141,6 +141,7 @@ impl Widget for Button {
             cr.stroke();
         }
     }
+
     fn event (&mut self, ev: Event) -> Option<Event> {
         match ev.data {
             EventType::MouseMove(_mm) => {
@@ -194,8 +195,6 @@ mod tests {
     use super::*;
     use pugl_ui::ui::*;
     use pugl_ui::layout::stacklayout::*;
-    use pugl_ui::widget::*;
-
 
     #[derive(Default)]
     struct RootWidget {
