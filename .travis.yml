@@ -1,0 +1,29 @@
+language: rust
+rust:
+  - stable
+  - beta
+  - nightly
+
+dist: bionic
+
+addons:
+  apt:
+    packages:
+      - libgl-dev
+      - libglu1-mesa-dev
+      - libxrandr-dev
+      - libxcursor-dev
+      - libpango1.0-dev
+      - xvfb
+
+install:
+  - export DISPLAY=':99.0'
+  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+
+jobs:
+  allow_failures:
+    - rust: nightly
+
+script:
+  - cargo build --workspace
+  - cargo test --workspace --features testing

@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Johannes Mueller <github@johannes-mueller.org>"]
 edition = "2018"
 
+[features]
+testing = ["pugl-sys/testing", "cairo-rs/svg"]
+
 [dependencies]
 cairo-rs = "0.9.1"
 pango = "0.9.1"

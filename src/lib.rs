@@ -1,5 +1,4 @@
 
-
 extern crate cairo;
 extern crate pango;
 
@@ -44,6 +43,56 @@ mod tests {
     use pugl_sys::*;
 
     use cairo;
+
+    #[cfg(feature="testing")]
+    #[derive(Default)]
+    struct SVGStream {
+        contents: String
+    }
+
+    #[cfg(feature="testing")]
+    impl std::io::Write for SVGStream {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+            self.contents.push_str(&String::from_utf8_lossy(buf).to_owned());
+            Ok((buf.len()))
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+
+    #[cfg(feature="testing")]
+    pub struct SVGCairoTester {
+        context: cairo::Context,
+        surface: cairo::SvgSurface
+    }
+
+    #[cfg(feature="testing")]
+    impl SVGCairoTester {
+        pub fn new(width: f64, height: f64) -> Self {
+            let surface = unsafe {
+                cairo::SvgSurface::for_stream(width, height, SVGStream::default()).unwrap()
+            };
+            let context = cairo::Context::new(&surface);
+            Self {
+                context,
+                surface
+            }
+        }
+
+        pub fn contents(&self) -> String {
+            let stream_box = self.surface.finish_output_stream().unwrap();
+            let stream = stream_box.downcast_ref::<SVGStream>().unwrap();
+            let contents = stream.contents.clone();
+            eprintln!("{}", contents);
+            contents
+        }
+
+        pub fn context(&self) -> &cairo::Context {
+            &self.context
+        }
+    }
+
 
     #[derive(Default)]
     struct RootWidget {
@@ -99,6 +148,7 @@ mod tests {
         }
     }
 
+    #[cfg(not(feature="testing"))]
     #[test]
     fn showcase() {
         let rw = Box::new(RootWidget::default());

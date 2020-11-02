@@ -33,7 +33,7 @@ impl Button {
         btn
     }
 
-    pub fn new (text: &str) -> Box<Button> {
+    pub fn new(text: &str) -> Box<Button> {
         let sf = cairo::ImageSurface::create (cairo::Format::ARgb32, 8, 8).unwrap();
         let cr = cairo::Context::new (&sf);
 
@@ -87,10 +87,10 @@ impl Widget for Button {
         let pos = self.pos();
 
         let (r, g, b) =  if self.is_hovered() {
-	    utils::hsv_to_rgb(0.0, 0.0, style::BRIGHTNESS_BUTTON_HOVER)
-	} else {
-	    utils::hsv_to_rgb(0.0, 0.0, style::BRIGHTNESS_BUTTON_NORMAL)
-	};
+            utils::hsv_to_rgb(0.0, 0.0, style::BRIGHTNESS_BUTTON_HOVER)
+        } else {
+            utils::hsv_to_rgb(0.0, 0.0, style::BRIGHTNESS_BUTTON_NORMAL)
+        };
         cr.set_source_rgb(r, g, b);
         utils::rounded_rectangle(cr, pos, size, PADDING);
         //cr.fill_preserve();
@@ -158,10 +158,23 @@ impl Widget for Button {
 
                 event_processed!()
             },
-            EventType::KeyRelease (ke) => {
+            EventType::KeyPress(ke) => {
                 ke.try_char().and_then(|c| {
                     match c {
                         ' ' => {
+                            self.active = true;
+                            event_processed!()
+                        },
+                        _ => event_not_processed!()
+                    }
+                }).or (event_not_processed!())
+            },
+            EventType::KeyRelease(ke) => {
+                ke.try_char().and_then(|c| {
+                    match c {
+                        ' ' => {
+                            self.clicked = true;
+                            self.active = false;
                             event_processed!()
                         },
                         _ => event_not_processed!()
@@ -174,4 +187,140 @@ impl Widget for Button {
     fn min_size(&self) -> Size { self.min_size }
 
     fn takes_focus(&self) -> bool { true }
+}
+
+#[cfg(all(test, feature="testing"))]
+mod tests {
+    use super::*;
+    use pugl_ui::ui::*;
+    use pugl_ui::layout::stacklayout::*;
+    use pugl_ui::widget::*;
+
+
+    #[derive(Default)]
+    struct RootWidget {
+        stub: WidgetStub
+    }
+
+    impl Widget for RootWidget {
+        widget_stub!();
+    }
+
+    #[test]
+    fn test_button_click() {
+        let rw = Box::new(RootWidget::default());
+        let mut view = PuglView::new(std::ptr::null_mut(), |pv| UI::new_scaled(pv, rw, 1.0));
+
+        let (click_pos, button) = {
+            let ui = view.handle();
+            let button = ui.new_widget(Button::new("test button"));
+            ui.pack_to_layout(button, ui.root_layout(), StackDirection::Front);
+            ui.do_layout();
+            ui.show_window();
+
+            let w = ui.widget(button);
+            let pos = w.pos();
+            let size = w.size();
+            (Coord { x: pos.x + size.w/2., y: pos.y + size.h/2. }, button)
+        };
+
+        view.queue_event(Event {
+            data: EventType::MouseButtonRelease(MouseButton { num: 1, modifiers: Modifiers::default() }),
+            context: EventContext { pos: click_pos, ..Default::default() }
+        });
+
+        let ui = view.handle();
+
+        assert!(!ui.widget(button).clicked());
+        ui.update(-1.0);
+        assert!(ui.widget(button).clicked());
+    }
+
+    #[test]
+    fn test_button_space_key_click() {
+        let rw = Box::new(RootWidget::default());
+        let mut view = PuglView::new(std::ptr::null_mut(), |pv| UI::new_scaled(pv, rw, 1.0));
+
+        view.queue_event(Event {
+            data: EventType::KeyRelease(Key { key: KeyVal::Character(' '), modifiers: Modifiers::default(), code: 65 }),
+            context: EventContext::default()
+        });
+
+        let ui = view.handle();
+        let button = ui.new_widget(Button::new("test button"));
+        ui.pack_to_layout(button, ui.root_layout(), StackDirection::Front);
+        ui.do_layout();
+        ui.show_window();
+
+        ui.focus_widget(button);
+
+        assert!(!ui.widget(button).clicked());
+        ui.update(-1.0);
+        assert!(ui.widget(button).clicked());
+    }
+
+    #[test]
+    fn test_button_active() {
+        let rw = Box::new(RootWidget::default());
+        let mut view = PuglView::new(std::ptr::null_mut(), |pv| UI::new_scaled(pv, rw, 1.0));
+
+        let (click_pos, button) = {
+            let ui = view.handle();
+            let button = ui.new_widget(Button::new("test button"));
+            ui.pack_to_layout(button, ui.root_layout(), StackDirection::Front);
+            ui.do_layout();
+            ui.show_window();
+
+            let w = ui.widget(button);
+            let pos = w.pos();
+            let size = w.size();
+            (Coord { x: pos.x + size.w/2., y: pos.y + size.h/2. }, button)
+        };
+
+        view.queue_event(Event {
+            data: EventType::MouseButtonPress(MouseButton { num: 1, modifiers: Modifiers::default() }),
+            context: EventContext { pos: click_pos, ..Default::default() }
+        });
+        view.queue_event(Event {
+            data: EventType::MouseButtonRelease(MouseButton { num: 1, modifiers: Modifiers::default() }),
+            context: EventContext { pos: click_pos, ..Default::default() }
+        });
+
+        let ui = view.handle();
+
+        assert!(!ui.widget(button).active);
+        ui.update(-1.0);
+        assert!(ui.widget(button).active);
+        ui.update(-1.0);
+        assert!(!ui.widget(button).active);
+    }
+
+    #[test]
+    fn test_button_space_key_active() {
+        let rw = Box::new(RootWidget::default());
+        let mut view = PuglView::new(std::ptr::null_mut(), |pv| UI::new_scaled(pv, rw, 1.0));
+
+        view.queue_event(Event {
+            data: EventType::KeyPress(Key { key: KeyVal::Character(' '), modifiers: Modifiers::default(), code: 65 }),
+            context: EventContext::default()
+        });
+        view.queue_event(Event {
+            data: EventType::KeyRelease(Key { key: KeyVal::Character(' '), modifiers: Modifiers::default(), code: 65 }),
+            context: EventContext::default()
+        });
+
+        let ui = view.handle();
+        let button = ui.new_widget(Button::new("test button"));
+        ui.pack_to_layout(button, ui.root_layout(), StackDirection::Front);
+        ui.do_layout();
+        ui.show_window();
+
+        ui.focus_widget(button);
+
+        assert!(!ui.widget(button).active);
+        ui.update(-1.0);
+        assert!(ui.widget(button).active);
+        ui.update(-1.0);
+        assert!(!ui.widget(button).active);
+    }
 }

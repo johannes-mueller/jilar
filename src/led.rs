@@ -35,12 +35,11 @@ impl LED {
         cr.save();
         cr.translate(pos.x, pos.y);
 
-
         cr.arc(0.0, 0.0, self.diameter/2., 0.0, 2.*PI);
 
         let v = if self.on {
             1.0
-	} else {
+        } else {
             0.5
         };
         let (r, g, b) = utils::hsv_to_rgb(self.hue, 1., v);
@@ -51,5 +50,42 @@ impl LED {
         cr.stroke();
 
         cr.restore();
+    }
+}
+
+
+#[cfg(all(test, feature="testing"))]
+mod tests {
+    use super::*;
+
+    use crate::tests::SVGCairoTester;
+    use pugl_ui::ui::*;
+    use pugl_ui::layout::stacklayout::*;
+    use pugl_ui::widget::*;
+
+    #[test]
+    fn led_create() {
+        let led = LED::new(0.0);
+        assert!(!led.on);
+    }
+
+    #[test]
+    fn led_draw_red_off() {
+        let led = LED::new(0.0);
+        let tester = SVGCairoTester::new(16., 16.);
+        led.render(tester.context(), Coord { x: 8., y: 8. });
+
+        assert!(tester.contents().contains("<path style=\"fill-rule:nonzero;fill:rgb(50%,0%,0%);"));
+    }
+
+    #[test]
+    fn led_draw_red_on() {
+        let mut led = LED::new(0.0);
+        led.set_on(true);
+
+        let tester = SVGCairoTester::new(16., 16.);
+        led.render(tester.context(), Coord { x: 8., y: 8. });
+
+        assert!(tester.contents().contains("<path style=\"fill-rule:nonzero;fill:rgb(100%,0%,0%);"));
     }
 }
