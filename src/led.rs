@@ -12,17 +12,27 @@ pub struct LED {
     on: bool
 }
 
+fn sanitize_hue(hue: f64) -> f64 {
+    match hue {
+        hue if hue < 0. => 0.,
+        hue if hue > 1. => 0.,
+        _ => hue
+    }
+}
+
 impl LED {
     pub fn new(hue: f64) -> LED {
         LED {
-            hue,
+            hue: sanitize_hue(hue),
             diameter: style::LED_DIAMETER,
             on: false
         }
     }
 
     pub fn set_hue(&mut self, hue: f64) -> &mut LED {
-        self.hue = hue;
+        if sanitize_hue(hue) == hue {
+            self.hue = hue;
+        }
         self
     }
 
@@ -64,6 +74,46 @@ mod tests {
     fn led_create() {
         let led = LED::new(0.0);
         assert!(!led.on);
+        assert_eq!(led.hue, 0.0);
+    }
+
+    #[test]
+    fn led_create_hue_valid_hue() {
+        let led = LED::new(0.2);
+        assert_eq!(led.hue, 0.2)
+    }
+
+    #[test]
+    fn led_create_hue_gt1() {
+        let led = LED::new(2.0);
+        assert_eq!(led.hue, 0.0)
+    }
+
+    #[test]
+    fn led_create_hue_lt0() {
+        let led = LED::new(-2.0);
+        assert_eq!(led.hue, 0.0)
+    }
+
+    #[test]
+    fn led_set_hue_valid_hue() {
+        let mut led = LED::new(0.3);
+        led.set_hue(0.2);
+        assert_eq!(led.hue, 0.2);
+    }
+
+    #[test]
+    fn led_set_hue_gt1() {
+        let mut led = LED::new(0.3);
+        led.set_hue(2.0);
+        assert_eq!(led.hue, 0.3)
+    }
+
+    #[test]
+    fn led_set_hue_lt0() {
+        let mut led = LED::new(0.3);
+        led.set_hue(-2.0);
+        assert_eq!(led.hue, 0.3)
     }
 
     #[test]
@@ -123,6 +173,5 @@ mod tests {
         led.render(tester.context(), Coord { x: 8., y: 8. });
 
         assert!(tester.contents().contains("<path style=\"fill-rule:nonzero;fill:rgb(0%,0%,50%);"));
-
     }
 }
