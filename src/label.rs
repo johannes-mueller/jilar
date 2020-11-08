@@ -6,9 +6,7 @@ use crate::utils;
 
 pub struct Label {
     stub: WidgetStub,
-
     text: String,
-
     min_size: Size
 }
 
@@ -41,15 +39,23 @@ impl Widget for Label {
         cr.save();
 
         cr.set_source_rgb(1., 1., 1.);
-
         cr.translate(pos.x, pos.y);
-
         pangocairo::functions::show_layout(&cr, &utils::pango_layout(&self.text, cr));
 
         cr.restore();
     }
 
     fn min_size(&self) -> Size { self.min_size }
+}
 
-//    fn width_expandable(&self) -> bool { true }
+#[cfg(all(test, feature="testing"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn label_create() {
+        let mut label = Label::new("test label");
+
+        assert_eq!(label.text, "test label");
+    }
 }
