@@ -32,7 +32,6 @@ pub fn active_gradient(pos: Coord, size: Size, rgb: (f64, f64, f64)) -> cairo::L
     grad
 }
 
-
 pub fn inactive_gradient(pos: Coord, size: Size, rgb: (f64, f64, f64)) -> cairo::LinearGradient {
     let (r, g, b) = rgb;
     let grad = cairo::LinearGradient::new(pos.x, pos.y, 0.0, size.h);
@@ -77,13 +76,92 @@ pub fn hsv_to_rgb(h: f64, s: f64, v: f64) -> RGB {
 
 
 pub fn pango_layout(text: &str, cr: &cairo::Context) -> pango::Layout {
-    let ctx = pangocairo::functions::create_context (&cr).unwrap();
-    let lyt = pango::Layout::new (&ctx);
+    let ctx = pangocairo::functions::create_context(&cr).unwrap();
+    let lyt = pango::Layout::new(&ctx);
 
-    let font_desc = pango::FontDescription::from_string (style::BUTTONFONT);
+    let font_desc = pango::FontDescription::from_string(style::BUTTONFONT);
 
-    lyt.set_font_description (Some(&font_desc));
-    lyt.set_text (&text);
+    lyt.set_font_description(Some(&font_desc));
+    lyt.set_text(&text);
 
     lyt
+}
+
+
+#[cfg(all(test, feature="testing"))]
+mod tests {
+    use super::*;
+
+    use crate::tests::SVGCairoTester;
+
+    use pango::*;
+
+    #[test]
+    fn hue_to_rgb_plain_read() {
+        let (h, s, v) = (1.0, 1.0, 1.0);
+        let (r, g, b) = hsv_to_rgb(h, s, v);
+        assert_eq!(r, 1.0);
+        assert_eq!(g, 0.0);
+        assert_eq!(b, 0.0);
+    }
+
+    #[test]
+    fn hue_to_rgb_plain_blue() {
+        let (h, s, v) = (2./3., 1.0, 1.0);
+        let (r, g, b) = hsv_to_rgb(h, s, v);
+        assert_eq!(r, 0.0);
+        assert_eq!(g, 0.0);
+        assert_eq!(b, 1.0);
+    }
+
+    #[test]
+    fn hue_to_rgb_plain_yellow() {
+        let (h, s, v) = (1./6., 1.0, 1.0);
+        let (r, g, b) = hsv_to_rgb(h, s, v);
+        assert_eq!(r, 1.0);
+        assert_eq!(g, 1.0);
+        assert_eq!(b, 0.0);
+    }
+
+    #[test]
+    fn hue_to_rgb_plain_black_red() {
+        let (h, s, v) = (1.0, 1.0, 0.0);
+        let (r, g, b) = hsv_to_rgb(h, s, v);
+        assert_eq!(r, 0.0);
+        assert_eq!(g, 0.0);
+        assert_eq!(b, 0.0);
+    }
+
+    #[test]
+    fn hue_to_rgb_plain_black_blue() {
+        let (h, s, v) = (2./3., 0.5, 0.0);
+        let (r, g, b) = hsv_to_rgb(h, s, v);
+        assert_eq!(r, 0.0);
+        assert_eq!(g, 0.0);
+        assert_eq!(b, 0.0);
+    }
+
+    #[test]
+    fn hue_to_rgb_plain_white_red() {
+        let (h, s, v) = (1.0, 0.0, 1.0);
+        let (r, g, b) = hsv_to_rgb(h, s, v);
+        assert_eq!(r, 1.0);
+        assert_eq!(g, 1.0);
+        assert_eq!(b, 1.0);
+    }
+
+    #[test]
+    fn pango_layout_text() {
+        let tester = SVGCairoTester::new(16., 16.);
+        let lyt = pango_layout("test text", tester.context());
+        assert_eq!(lyt.get_text().unwrap(), "test text");
+    }
+
+    #[test]
+    fn pango_layout_font_description() {
+        let tester = SVGCairoTester::new(16., 16.);
+        let lyt = pango_layout("test text", tester.context());
+        assert_eq!(lyt.get_font_description().unwrap().get_style(), Style::Normal);
+        assert_eq!(lyt.get_font_description().unwrap().get_family().unwrap(), "Sans");
+    }
 }
