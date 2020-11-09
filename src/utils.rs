@@ -96,6 +96,57 @@ mod tests {
 
     use pango::*;
 
+
+    #[test]
+    fn rounded_rectangle_draw() {
+        let tester = SVGCairoTester::new(16., 16.);
+
+        rounded_rectangle(tester.context(), Coord::default(), Size { w: 16., h: 16.}, 4.);
+        tester.context().stroke();
+
+        let cont = tester.contents();
+        assert!(cont.contains("d=\"M 16 12 C"));
+        assert!(cont.contains("12 16 L 4 16 C"));
+    }
+
+    #[test]
+    fn active_gradient_create() {
+        let pos = Coord { x: 23., y: 42. };
+        let size = Size { w: 12., h: 7. };
+
+        let grad = active_gradient(pos, size, (0.96, 0.72, 0.48));
+
+        let (x, y, w, h) = grad.get_linear_points();
+        assert_eq!(x, 23.);
+        assert_eq!(y, 42.);
+        assert_eq!(w, 0.);
+        assert_eq!(h, 7.);
+
+        assert_eq!(grad.get_color_stop_count(), 2);
+
+        assert_eq!(grad.get_color_stop_rgba(0), (0.0, 0.8, 0.6, 0.4, 1.0));
+        assert_eq!(grad.get_color_stop_rgba(1), (0.5, 1.0, 1.2*0.72, 1.2*0.48, 1.0));
+    }
+
+    #[test]
+    fn inactive_gradient_create() {
+        let pos = Coord { x: 23., y: 42. };
+        let size = Size { w: 12., h: 7. };
+
+        let grad = inactive_gradient(pos, size, (0.96, 0.72, 0.48));
+
+        let (x, y, w, h) = grad.get_linear_points();
+        assert_eq!(x, 23.);
+        assert_eq!(y, 42.);
+        assert_eq!(w, 0.);
+        assert_eq!(h, 7.);
+
+        assert_eq!(grad.get_color_stop_count(), 2);
+
+        assert_eq!(grad.get_color_stop_rgba(1), (0.5, 0.8, 0.6, 0.4, 1.0));
+        assert_eq!(grad.get_color_stop_rgba(0), (0.0, 1.0, 1.2*0.72, 1.2*0.48, 1.0));
+    }
+
     #[test]
     fn hue_to_rgb_plain_read() {
         let (h, s, v) = (1.0, 1.0, 1.0);
