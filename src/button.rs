@@ -93,7 +93,6 @@ impl Widget for Button {
         };
         cr.set_source_rgb(r, g, b);
         utils::rounded_rectangle(cr, pos, size, PADDING);
-        //cr.fill_preserve();
         cr.set_line_width(2.0);
         cr.set_source_rgb(0., 0., 0.);
         cr.stroke();

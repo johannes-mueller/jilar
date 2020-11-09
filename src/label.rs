@@ -54,7 +54,7 @@ mod tests {
 
     #[test]
     fn label_create() {
-        let mut label = Label::new("test label");
+        let label = Label::new("test label");
 
         assert_eq!(label.text, "test label");
     }
