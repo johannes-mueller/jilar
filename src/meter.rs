@@ -32,7 +32,7 @@ impl Meter {
             self.retained_level = Some((self.num_retains, new_level));
         }
         if (new_level - self.current_level).abs() > f32::EPSILON * self.current_level ||
-	    self.retained_level.is_some() {
+            self.retained_level.is_some() {
             self.current_level = new_level;
             self.ask_for_repaint();
         }
