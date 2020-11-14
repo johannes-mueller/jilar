@@ -29,6 +29,8 @@ mod led;
 #[cfg(feature="testing")]
 mod tests {
 
+    use pugl_sys::*;
+
     #[derive(Default)]
     struct SVGStream {
         contents: String
@@ -47,7 +49,8 @@ mod tests {
 
     pub struct SVGCairoTester {
         context: cairo::Context,
-        surface: cairo::SvgSurface
+        surface: cairo::SvgSurface,
+        size: Size
     }
 
     impl SVGCairoTester {
@@ -56,7 +59,8 @@ mod tests {
             let context = cairo::Context::new(&surface);
             Self {
                 context,
-                surface
+                surface,
+                size: Size { w: width, h: height }
             }
         }
 
@@ -70,6 +74,13 @@ mod tests {
 
         pub fn context(&self) -> &cairo::Context {
             &self.context
+        }
+
+        pub fn expose_area(&self) -> ExposeArea {
+            ExposeArea {
+                pos: Coord::default(),
+                size: self.size
+            }
         }
     }
 }
